@@ -1,4 +1,3 @@
-[README (2).md](https://github.com/user-attachments/files/34342575/README.2.md)
 # Wind Power Station
 
 A small desk-fan wind turbine I built to measure how much power a DC motor generator makes, and how the electrical load, turbine placement, and blade design change that power.
