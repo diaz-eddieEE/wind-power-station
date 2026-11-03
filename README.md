@@ -2,7 +2,7 @@
 
 A small wind turbine test rig I built to measure how much electrical power a DC-motor generator produces, find the load that gets the most power out of it, and test whether bigger blades help.
 
-![Test rig](images/setup.jpg)
+![Test rig](images/test-rig.jpg)
 *Desk fan, DC motor generator held in helping hands, INA219 sensor on a breadboard, Arduino Mega logging the data.*
 
 ## Key results
@@ -25,7 +25,7 @@ A small wind turbine test rig I built to measure how much electrical power a DC-
 | Clip-on desk fan | Wind source |
 
 ### Wiring
-<img src="images/ina219.jpg" width="300" alt="INA219 sensor with soldered header pins">
+<img src="images/ina219-soldered.jpg" width="300" alt="INA219 sensor with soldered header pins">
 
 *The INA219 after I soldered its header pins.*
 
