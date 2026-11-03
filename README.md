@@ -2,7 +2,7 @@
 
 A small wind turbine test rig I built to measure how much electrical power a DC-motor generator produces, find the load that gets the most power out of it, and test whether bigger blades help.
 
-![Test rig]
+![Test rig](images/setup.jpg)
 *Desk fan, DC motor generator held in helping hands, INA219 sensor on a breadboard, Arduino Mega logging the data.*
 
 ## Key results
@@ -48,6 +48,7 @@ The load's other end, the motor's other wire, and the Mega's GND all connect to 
 - Fan on high. Wind speed at the turbine: **3.26 m/s** (low setting: 2.71 m/s), averaged from handheld anemometer readings.
 
 <img src="images/anemometer.jpg" width="260" alt="Anemometer reading 3.36 m/s">
+
 - Turbine **4 in** from the fan, fan face pointed straight, room ceiling fan off.
 - Each data point is the average of about 20 lines from the logger (each line is itself a 20-sample average).
 - **Repeatability checks:** I re-ran a reference measurement at the end of each session. Start and end matched within 1–1.2%.
