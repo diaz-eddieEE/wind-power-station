@@ -1,9 +1,8 @@
-[README.md](https://github.com/user-attachments/files/34342269/README.md)
 # Wind Power Station
 
 A small wind turbine test rig I built to measure how much electrical power a DC-motor generator produces, find the load that gets the most power out of it, and test whether bigger blades help.
 
-![Test rig](images/setup.jpg)
+![Test rig](<img width="1200" height="1600" alt="setup" src="https://github.com/user-attachments/assets/d897c553-6808-4896-9dd7-8241ca2da003" />)
 *Desk fan, DC motor generator held in helping hands, INA219 sensor on a breadboard, Arduino Mega logging the data.*
 
 ## Key results
