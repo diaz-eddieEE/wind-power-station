@@ -1,126 +1,137 @@
+[README (2).md](https://github.com/user-attachments/files/34342575/README.2.md)
 # Wind Power Station
 
-A small wind turbine test rig I built to measure how much electrical power a DC-motor generator produces, find the load that gets the most power out of it, and test whether bigger blades help.
+A small desk-fan wind turbine I built to measure how much power a DC motor generator makes, and how the electrical load, turbine placement, and blade design change that power.
 
-![Test rig](<img width="1200" height="1600" alt="setup" src="https://github.com/user-attachments/assets/d897c553-6808-4896-9dd7-8241ca2da003" />)
-*Desk fan, DC motor generator held in helping hands, INA219 sensor on a breadboard, Arduino Mega logging the data.*
+**Main results**
+- Built a generator model from my data (**2.44 V open-circuit, 142 Ω internal resistance**) that predicted the best load and matched four new loads within **0.2–6%**
+- The best load was **132 Ω**, close to the generator's internal resistance, which is what maximum power transfer predicts
+- Moving the turbine in front of the fan's blade ring instead of its center hub raised power by about **40%** (11.2 → 15.5 mW)
+- Bigger homemade blades made **42–63% less power** because they spun slower, and P = V²/R accounts for the whole drop
 
-## Key results
-
-- **Built a model of the generator and confirmed it.** From two measurements I modeled the generator as a 2.44 V source with 142 Ω of internal resistance. It predicted the power at four new loads within 0.2–6% before I measured them, and correctly predicted the best load (132 Ω).
-- **Turbine placement raised power about 40%.** Moving the turbine in front of the fan's blade ring instead of its center hub took the stock propeller from about 11 mW to 15.5 mW.
-- **Bigger blades made 42–63% less power.** Larger cardboard rotors spun slower, and this small motor makes voltage from speed. P = V²/R explains the drop exactly. Real turbines solve this with a gearbox.
+---
 
 ## Hardware
 
-| Part | Purpose |
+| Part | What I used |
 |---|---|
-| Small DC motor (EUDAX kit) | Generator |
-| Stock 4-blade propeller (~6 cm) and cardboard blade designs | Rotors |
-| INA219 current/voltage sensor (header pins soldered by me) | Measures voltage, current, and power |
-| Arduino Mega 2560 | Reads the sensor and logs data |
-| Resistors (10 Ω to 1 kΩ) and a red LED | Electrical loads |
-| KAIWEETS HT118A multimeter | Cross-checking the sensor |
-| S8606 handheld anemometer | Wind speed |
-| Clip-on desk fan | Wind source |
+| Generator | EUDAX small DC motor with its stock 4-blade propeller (~6 cm) |
+| Sensor | HiLetgo INA219 current/voltage sensor (I soldered the header pins) |
+| Microcontroller | Arduino Mega 2560 |
+| Wind source | Clip-on desk fan, low and high settings |
+| Wind speed | S8606 handheld anemometer |
+| Loads | Red LED and resistors (10 Ω to 1 kΩ) |
 
 ### Wiring
-<img src="images/ina219.jpg" width="300" alt="INA219 sensor with soldered header pins">
 
-*The INA219 after I soldered its header pins.*
-
-| INA219 pin | Connects to |
+| INA219 | Connects to |
 |---|---|
 | Vcc | Mega 5V |
 | Gnd | Ground rail |
-| Scl | Mega pin 21 (SCL) |
-| Sda | Mega pin 20 (SDA) |
+| SCL | Mega pin 21 |
+| SDA | Mega pin 20 |
 | Vin+ | Motor wire 1 |
-| Vin− | Load (resistor or LED) |
+| Vin− | Load |
 
-The load's other end, the motor's other wire, and the Mega's GND all connect to the shared ground rail. Current flows motor → Vin+ → sensor → Vin− → load → ground.
+The other end of the load, motor wire 2, and Mega GND all go to a shared ground rail.
 
-### Code
-[`ina219_logger.ino`](ina219_logger.ino) averages 20 readings per line and prints voltage, current, and power about twice a second. I switched the INA219 to its 16 V / 400 mA calibration because the default range reported power in coarse 2 mW steps, too rough for a turbine that makes about 10 mW.
+### Test setup
+- Propeller 4 in from the fan, fan facing straight on, ceiling fan off
+- Wind speed at the propeller: **2.71 m/s** (low) and **3.26 m/s** (high)
+- The Arduino averages 20 readings per row and calculates power as V × I
 
-## Method
+---
 
-- Fan on high. Wind speed at the turbine: **3.26 m/s** (low setting: 2.71 m/s), averaged from handheld anemometer readings.
+## Results
 
-<img src="images/anemometer.jpg" width="260" alt="Anemometer reading 3.36 m/s">
-- Turbine **4 in** from the fan, fan face pointed straight, room ceiling fan off.
-- Each data point is the average of about 20 lines from the logger (each line is itself a 20-sample average).
-- **Repeatability checks:** I re-ran a reference measurement at the end of each session. Start and end matched within 1–1.2%.
+### 1. Load test: finding the best load
+Fan on high, stock propeller, resistors from 10 Ω to 1 kΩ (about 23 readings each).
 
-## Experiment 1: Finding the best load
+| Load | Voltage | Current | Power |
+|---|---|---|---|
+| 10 Ω | 0.161 V | 15.45 mA | 2.49 mW |
+| 100 Ω | 1.007 V | 10.07 mA | 10.2 mW |
+| **132 Ω** (220 ∥ 330) | 1.242 V | 9.41 mA | **11.7 mW** |
+| 220 Ω | 1.482 V | 6.73 mA | 10.0 mW |
+| 330 Ω | 1.709 V | 5.16 mA | 8.84 mW |
+| 1 kΩ | 2.166 V | 2.14 mA | 4.64 mW |
 
-With the stock propeller, I connected different resistors and measured the power delivered to each.
+![Power vs load](power_vs_load.png)
 
-![Power vs. load](power_vs_load.png)
+- **Ohm's law check:** V ÷ I matched every resistor's value, including 132 Ω for the 220 Ω and 330 Ω resistors in parallel.
+- **Repeatability:** I measured 100 Ω again later and got 10.1 mW vs. 10.2 mW the first time, a 1% difference.
+- **Generator model:** From the 100 Ω and 220 Ω runs I modeled the motor as a voltage source with internal resistance: **2.44 V and 142 Ω**. The 2.44 V agrees with the 2.49 V I measured separately with a multimeter with no load connected.
 
-| Load | Voltage | Current | Power | Model prediction |
-|---|---|---|---|---|
-| 10 Ω | 0.161 V | 15.45 mA | 2.49 mW | 2.58 mW |
-| 100 Ω | 1.005 V | 10.06 mA | 10.2 mW | (used to build the model) |
-| **132 Ω** (220 ∥ 330) | 1.21 V | 9.21 mA | **11.2 mW** (2 runs) | 10.5 mW |
-| 220 Ω | 1.482 V | 6.73 mA | 10.0 mW | (used to build the model) |
-| 330 Ω | 1.709 V | 5.16 mA | 8.84 mW | 8.82 mW |
-| 1 kΩ | 2.166 V | 2.14 mA | 4.64 mW | 4.57 mW |
+| Load | Model predicted | Measured | Difference |
+|---|---|---|---|
+| 10 Ω | 2.58 mW | 2.49 mW | 4% |
+| 132 Ω | 10.5 mW | 11.2 mW (avg of 2 runs) | 6% |
+| 330 Ω | 8.82 mW | 8.84 mW | 0.2% |
+| 1 kΩ | 4.57 mW | 4.64 mW | 1.5% |
 
-**What I found**
-- **Ohm's law check:** voltage ÷ current matched each resistor's value (for example 220.1 Ω for the 220 Ω resistor), so the sensor's readings are consistent.
-- **Generator model:** using the 100 Ω and 220 Ω results, I modeled the generator as a 2.44 V source with 142 Ω of internal resistance. The 2.44 V matches the no-load voltage I measured separately with a multimeter (2.49 V).
-- **Maximum power transfer:** too little resistance gives lots of current but almost no voltage (10 Ω); too much gives voltage but little current (1 kΩ). The most power comes near the generator's own resistance, and 132 Ω was the best load I could make from my resistors.
-- **Where the model falls short:** at 10 Ω it reads 4% high, likely because the motor slows down more under a heavy load. At the peak, my two runs averaged 6% above the model, within the run-to-run spread.
+### 2. Blade test: does a bigger rotor help?
+Fan on high, 132 Ω load. I tested the stock propeller at the start and again at the end to make sure conditions didn't change (15.6 and 15.4 mW, 1.2% apart).
 
-## Experiment 2: Turbine placement
-
-The stock propeller made about **11 mW** when aimed at the fan's center and **15.5 mW** when raised in front of the fan's blades, with the same load and distance. A fan's center hub blocks airflow; the strongest air comes from the ring where its blades are.
-
-## Experiment 3: Bigger blades
+| Propeller | Rotor size | Weight | Voltage | Power | vs. stock |
+|---|---|---|---|---|---|
+| Stock | ~6 cm | 4.0 g | 1.43 V | **15.5 mW** | — |
+| Design A: 4 flat cardboard blades | ~17 cm | 9.7 g | 1.09 V | 9.0 mW | −42% |
+| Design B: longer curved, twisted blades | ~25 cm | 13.1 g | 0.87 V | 5.8 mW | −63% |
 
 ![Blade comparison](blade_comparison.png)
 
-All at 132 Ω, same position, tested stock → Design A → Design B → stock.
+At a fixed load, voltage tracks how fast the motor spins, so Design A spun about 76% and Design B about 61% as fast as stock. Because P = V²/R, that predicts 58% and 37% of stock power, which matches what I measured. The bigger rotors were heavier and turned slower, and this small motor needs speed to make voltage. Real wind turbines solve this with a **gearbox** that speeds up big, slow blades for the generator.
 
-| Rotor | Size | Weight | Voltage | Power | vs. stock |
-|---|---|---|---|---|---|
-| Stock propeller | ~6 cm | 3.9 g | 1.43 V | **15.5 mW** | — |
-| Design A: 4 flat cardboard blades, 8.5 cm | ~17 cm | 9.7 g | 1.09 V | **9.0 mW** | −42% |
-| Design B: 12 cm blades, curved like a wing with a slight twist | ~25 cm | 13.1 g | 0.87 V | **5.8 mW** | −63% |
-
-![Blade designs weighed](images/blades.jpg)
-*The three rotors on a scale. Design B's blades were wetted and curved around a 5.5 cm glass, then given a slight twist.*
-
-<img src="images/blade_curve.jpg" width="300" alt="Curved cardboard blade"> <img src="images/blades_spinning.jpg" width="450" alt="Design B spinning in front of the fan">
-
-**What I found**
-- Bigger rotors spun slower. At a fixed load, the voltage tracks spin speed: Design A spun at about 76% and Design B at about 61% of the stock propeller's speed.
-- Power at a fixed load goes with voltage squared (P = V²/R). That predicts 100% → 58% → 37% of stock power, which matches the measurements. **Slower spinning explains the whole drop.**
-- The rotor has to match the generator. Big blades catch more wind but turn slowly, and this small motor needs speed. Design B was also wider than the fan's airflow, so its tips added weight and drag without catching much wind.
-- Limitation: I didn't test a flat 12 cm version, so I can't separate the effect of the curve from the effect of the length.
-
-## Other things I learned along the way
-
-![First LED test](images/first_test.jpg)
-*Oct 18: the first test, with the stock propeller lighting a red LED.*
-
-- **Loading effect:** the generator's voltage drops from 2.49 V (nothing connected) to about 1.9 V when it powers an LED, because drawing current makes the motor harder to spin.
-- **LEDs aren't simple loads:** an LED's voltage barely changes while its current doubles, because of its turn-on threshold. My first generator model used the LED and was off; switching to resistors fixed it.
-- **Setup matters as much as hardware:** before I controlled the distance and fan angle, my readings varied by more than 2×. Fixing the setup made results repeatable.
-- **Check surprising results:** one peak run came out 12% high. I tested my first guess (drift) with a reference measurement, ruled it out, and repeated the run. One result isn't a finding until it repeats.
-
-## Next steps
-
-- **Gearbox:** pair the bigger blades with the motor through a 2:1 belt drive (the kit's 5 cm pulley driving a 2.5 cm pulley), so slow blades still spin the generator fast. My first attempt showed the belt needs a longer shaft so it clears the blade sweep, the same layout real turbines use (blades in front, gearbox and generator behind).
-- **Power vs. wind speed:** measure several fan speeds with a resistor load and compare against the cube law (wind power ∝ wind speed³).
-- **Wireless monitoring:** I've set up an ESP32 web server on my phone; next is sending live turbine readings to it.
-
-## Build log
-
-- **Oct 18:** first generator test with a multimeter; learned soldering; set up the ESP32 and controlled an LED from my phone over WiFi.
-- **Oct 29:** soldered the INA219, wrote the logger, fixed the measurement setup, measured wind speed, ran the full load test and built the generator model.
-- **Nov 2:** found the placement effect, ran the blade test with same-session checks, attempted a belt-drive gearbox.
+Limitation: I didn't test a flat version of Design B, so I can't separate the effect of the curve from the effect of the extra length.
 
 ---
-*Eddie Diaz · Electrical Engineering student*
+
+## What I learned
+1. **Loading effect:** the motor's voltage drops when it powers something (2.49 V with nothing connected → 1.89 V with an LED).
+2. **Maximum power transfer:** too little resistance gives current but no voltage, too much gives voltage but no current, and the most power comes near the generator's own resistance.
+3. **Setup matters as much as hardware:** controlling the distance and fan angle raised power 2.7×, and moving the turbine away from the fan's center hub added another ~40%.
+4. **Measurement resolution:** the INA219's default range was too coarse for milliwatts, so I switched to a finer calibration and averaged 20 samples per reading.
+5. **Repeat surprising results:** a peak reading that looked 12% high turned out to be within normal run-to-run spread once I repeated it.
+6. **Match the rotor to the generator:** a bigger rotor doesn't help if it makes the motor spin slower.
+
+## Next steps
+- Use gears to pair large blades with the motor
+- Measure wind speed at the new turbine position
+- Send live readings to my phone over WiFi with an ESP32
+
+---
+
+## Arduino code
+```cpp
+#include <Wire.h>
+#include <Adafruit_INA219.h>
+
+Adafruit_INA219 ina219;
+const int SAMPLES = 20;
+
+void setup() {
+  Serial.begin(115200);
+  if (!ina219.begin()) {
+    Serial.println("INA219 not found. Check wiring.");
+    while (1) delay(10);
+  }
+  ina219.setCalibration_16V_400mA();   // finer resolution for small currents
+  Serial.println("Voltage_V, Current_mA, Power_mW");
+}
+
+void loop() {
+  float vSum = 0, iSum = 0, pSum = 0;
+  for (int n = 0; n < SAMPLES; n++) {
+    float v = ina219.getBusVoltage_V() + ina219.getShuntVoltage_mV() / 1000.0;
+    float i = ina219.getCurrent_mA();
+    vSum += v;
+    iSum += i;
+    pSum += v * i;          // power = volts x milliamps
+    delay(25);
+  }
+  Serial.print(vSum / SAMPLES, 3); Serial.print(", ");
+  Serial.print(iSum / SAMPLES, 2); Serial.print(", ");
+  Serial.println(pSum / SAMPLES, 2);
+}
+```
+Requires the Adafruit INA219 library. Board: Arduino Mega 2560, Serial Monitor at 115200 baud.
